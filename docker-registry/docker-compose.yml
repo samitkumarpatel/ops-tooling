@@ -1,0 +1,29 @@
+---
+version: '3.7'
+services:
+  registry-be:
+    image: registry:2.7.1
+    restart: always
+    ports:
+    - "5000:5000"
+    volumes:
+    - type: volume
+      source: docker-registry
+      target: /var/lib/registry
+    networks:
+    - registry-net
+  registry-fe:
+    image: joxit/docker-registry-ui:static  
+    restart: always
+    ports:
+    - "10002:80"
+    environment:
+      REGISTRY_URL: http://registry-be:5000 
+      DELETE_IMAGES: "true" 
+      REGISTRY_TITLE: "Customised Title"
+    networks:
+    - registry-net
+volumes:
+  docker-registry:
+networks:
+  registry-net:

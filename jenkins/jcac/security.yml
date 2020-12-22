@@ -1,0 +1,10 @@
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  scriptApproval:
+    approvedSignatures:
+    - "new groovy.text.XmlTemplateEngine"
+    - "new java.io.File java.lang.String"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getText java.io.File"

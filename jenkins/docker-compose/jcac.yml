@@ -1,0 +1,112 @@
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+        - usernamePassword:
+            id: "github"
+            password: ${GITHUB_PASSWORD:-fake}
+            scope: GLOBAL
+            username: ${GITHUB_USERNAME}
+        - usernamePassword:
+            id: "ssh"
+            password: ${SSH_PASSWORD:-fake}
+            username: ${SSH_USERNAME:-fake}
+jenkins:
+  systemMessage: "Hello, world!"
+  agentProtocols:
+    - "JNLP4-connect"
+    - "Ping"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+  disableRememberMe: false
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 1
+  nodes:
+    - permanent:
+        labelString: "sshslave01"
+        launcher:
+          ssh:
+            credentialsId: "ssh"
+            host: "worker"
+            port: 22
+            sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
+        name: "sshslave01"
+        nodeDescription: "ssh slave01"
+        numExecutors: 3
+        remoteFS: "/var/lib/jenkins"
+        retentionStrategy: "always"
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+        - id: "samit"
+          password: "samit123"
+        - id: "other"
+          password: "other123"
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            pattern: ".*"
+            permissions:
+              - "Job/Move"
+              - "Job/Build"
+              - "Lockable Resources/View"
+              - "Credentials/Delete"
+              - "Credentials/ManageDomains"
+              - "Lockable Resources/Unlock"
+              - "View/Create"
+              - "Agent/Configure"
+              - "Job/Read"
+              - "Credentials/Update"
+              - "Agent/Create"
+              - "Job/Delete"
+              - "Agent/Build"
+              - "View/Configure"
+              - "Lockable Resources/Reserve"
+              - "Agent/Provision"
+              - "SCM/Tag"
+              - "Job/Create"
+              - "Job/Discover"
+              - "Credentials/View"
+              - "Agent/Connect"
+              - "Agent/Delete"
+              - "Run/Replay"
+              - "Agent/Disconnect"
+              - "Run/Delete"
+              - "Job/Cancel"
+              - "Overall/Read"
+              - "Run/Update"
+              - "Credentials/Create"
+              - "Overall/Administer"
+              - "View/Delete"
+              - "Job/Configure"
+              - "Job/Workspace"
+              - "View/Read"
+            assignments:
+              - "root"
+              - "samit"
+          - name: "user"
+            pattern: ".*"
+            permissions:
+              - "Lockable Resources/View"
+              - "Job/Build"
+              - "SCM/Tag"
+              - "Lockable Resources/Unlock"
+              - "Job/Discover"
+              - "Job/Read"
+              - "Run/Replay"
+              - "Run/Delete"
+              - "Job/Cancel"
+              - "Overall/Read"
+              - "Run/Update"
+              - "Job/Workspace"
+              - "View/Read"
+              - "Lockable Resources/Reserve"
+            assignments:
+              - "other"

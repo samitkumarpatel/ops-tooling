@@ -1,0 +1,18 @@
+---
+  - name: "job01"
+    sandbox: True
+    script: >
+      node(){
+        stage("image"){
+          sh 'echo "Hello World"'
+        }
+      }
+  - name: "job02"
+    sandbox: False
+    script: >
+      node(){
+        stage("image"){
+          sh 'echo "Hello World"'
+        }
+      }
+    

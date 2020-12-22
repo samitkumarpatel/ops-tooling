@@ -1,0 +1,107 @@
+node() {
+    
+    stage('checkout') { 
+        checkout scm
+    }
+    
+    stage('validate') {
+        print 'DEBUG: repository'+ params.repository
+        print 'DEBUG: deploy_tag' + params.deploy_tag
+        print 'DEBUG: config_branch' + params.inventory_branch
+        print 'DEBUG: deploy_env' + params.deploy_env
+        print 'DEBUG: domain' + params.debug
+    }
+    
+    def jobName= params.repository.replace("/","_")+"__Deploy_"+"MEPC_Deploy_"+params.deploy_env
+    stage('Deploy_Job - create') {
+        def jenkinsTemplate = """
+            <flow-definition plugin="workflow-job@2.26">
+                <description></description>
+                <keepDependencies>false</keepDependencies>
+                <properties>
+                <hudson.model.ParametersDefinitionProperty>
+                    <parameterDefinitions>
+                    <hudson.model.StringParameterDefinition>
+                        <name>inventory_branch</name>
+                        <description>Ansible Inventory Branch</description>
+                        <defaultValue>master</defaultValue>
+                        <trim>true</trim>
+                    </hudson.model.StringParameterDefinition>
+                    <hudson.model.StringParameterDefinition>
+                        <name>deploy_tag</name>
+                        <description>Deployable Tag</description>
+                        <defaultValue>latest</defaultValue>
+                        <trim>true</trim>
+                    </hudson.model.StringParameterDefinition>
+                    <hudson.model.StringParameterDefinition>
+                        <name>deploy_env</name>
+                        <description>Deployment Environment</description>
+                        <defaultValue>dev</defaultValue>
+                        <trim>false</trim>
+                    </hudson.model.StringParameterDefinition>
+                    <hudson.model.BooleanParameterDefinition>
+                        <name>debug</name>
+                        <description>Debug</description>
+                        <defaultValue>false</defaultValue>
+                    </hudson.model.BooleanParameterDefinition>
+                    </parameterDefinitions>
+                </hudson.model.ParametersDefinitionProperty>
+                <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
+                <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.29">
+                    <autoRebuild>false</autoRebuild>
+                    <rebuildDisabled>false</rebuildDisabled>
+                </com.sonyericsson.rebuild.RebuildSettings>
+                </properties>
+                <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.58">
+                <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
+                    <configVersion>2</configVersion>
+                    <userRemoteConfigs>
+                    <hudson.plugins.git.UserRemoteConfig>
+                        <url>https://github.com/ansible-demo.git</url>
+                        <credentialsId>bitbucket</credentialsId>
+                    </hudson.plugins.git.UserRemoteConfig>
+                    </userRemoteConfigs>
+                    <branches>
+                    <hudson.plugins.git.BranchSpec>
+                        <name>$inventory_branch</name>
+                    </hudson.plugins.git.BranchSpec>
+                    </branches>
+                    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+                    <submoduleCfg class="list"/>
+                    <extensions/>
+                </scm>
+                <scriptPath>Jenkinsfile</scriptPath>
+                <lightweight>false</lightweight>
+                </definition>
+                <triggers/>
+                <disabled>false</disabled>
+            </flow-definition>
+        """
+        if(!Jenkins.getInstance().getItem(jobName)) {
+            def templatedSerializeXml = new XmlUtil().serialize(
+                new XmlParser().parseText(jobTemplateText)
+                )
+            
+            def finalXml = new XmlSlurper().parseText(templatedSerializeXml)
+            
+            byte[] configBytes= new StreamingMarkupBuilder()
+                    .bindNode(finalXml)
+                    .toString()
+                    .getBytes()
+            Jenkins.getInstance().createProjectFromXML(jobName, new ByteArrayInputStream(configBytes))
+            
+            println "Pipeline ${jobName} created!"
+        } else {
+            println "Pipeline ${jobName} already exist!..Skipping the creation process "
+        }
+    }
+    def deployJob
+    stage('Deploy_Job - start') {
+        deployJob = build job: jobName,parameters: [
+                  string(name: 'config_branch', value: "develop")
+              ], propagate: false, wait: true, quietPeriod: 5
+    }
+    stage('Deploy_Job - status') {
+        println deployJob.getResult()
+    }
+}

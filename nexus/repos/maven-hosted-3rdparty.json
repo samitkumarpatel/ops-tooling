@@ -1,0 +1,5 @@
+{
+  "name": "maven-hosted-3rdparty",
+  "type": "groovy",
+  "content": "repository.createMavenHosted('maven-hosted-3rdparty')"
+}

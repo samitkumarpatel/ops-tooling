@@ -1,0 +1,137 @@
+---
+- hosts: all
+  vars:
+    base_folder: "/home/vagrant/.jenkins"
+    folder_structure:
+    - "{{ base_folder }}"
+    - "{{ base_folder }}/jenkins_home"
+    - "{{ base_folder }}/jcac"
+    - "{{ base_folder }}/slave"
+    user:
+      name: "jenkins"
+      id: 2000
+      gid: 30058
+      upassword: "changeme"
+    
+  tasks:
+  - name: Installation
+    tags:
+    - never
+    - installation
+    become: True
+    block:
+    - name: Install required system apt packages
+      apt: 
+        name: "{{ item }}"
+        state: latest
+        update_cache: yes
+      loop: 
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3-pip
+        - python-pip
+        - virtualenv
+        - python3-setuptools
+        - docker-compose
+        - openjdk-8-jdk
+    - name: Install pip Docker Module for Python
+      pip:
+        name: "{{ item }}"
+        executable: pip3
+      loop:
+      - docker
+    - name: Add group for jenkins
+      group:
+        name: "{{ user.name }}"
+        gid: "{{ user.gid }}"
+    - name: user for jenkins
+      user:
+        name: "{{ user.name }}"
+        password: "{{ user.upassword | password_hash('sha512') }}"
+        groups: docker
+        uid: "{{ user.id}}"
+        group: "{{ user.gid }}"
+        generate_ssh_key: yes
+    - name: jenkins installation folder
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ user.id }}"
+        group: "{{ user.gid }}"
+      loop: "{{ folder_structure }}"
+      
+    
+  - name: Jenkins Provision
+    become: True
+    #become_user: jenkins
+    block:
+    - name: makesure jenkins folder will own by jenkins user
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ user.id }}"
+        group: "{{ user.gid }}"
+      loop: "{{ folder_structure }}" 
+    - name: cleanup
+      docker_container:
+        name: "{{ item }}"
+        state: absent
+      loop:
+      - jcac
+      - jenkins
+      ignore_errors: yes
+
+    - name: docker network
+      docker_network:
+        name: jenkins
+    
+    - name: jcac Template
+      template:
+        src: jcac.j2
+        dest: "{{ base_folder }}/jcac/jcac.yml"
+        mode: '0755'
+        owner: "{{ user.id }}"
+        group: "{{ user.gid }}"
+    
+    - name: jcac
+      docker_container:
+        name: jcac
+        image: samitkumarpatel/jenkins-jcac:latest
+        state: started
+        restart: yes
+        networks_cli_compatible: yes
+        networks:
+        - name: jenkins
+          links:
+            - jenkins
+        mounts:
+        - type: bind
+          source: "{{ base_folder }}/jcac/jcac.yml"
+          target: /usr/share/nginx/html/jcac.yml
+    - name: jenkins
+      docker_container:
+        name: jenkins
+        image: samitkumarpatel/jenkins:latest
+        state: started
+        restart: yes
+        networks_cli_compatible: yes
+        ports:
+        - "8080:8080"
+        user: "{{ user.id }}:{{user.gid }}"
+        mounts:
+        - type: bind
+          source: "{{ base_folder }}/jenkins_home"
+          target: /var/jenkins_home
+        env:
+          CASC_JENKINS_CONFIG=http://jcac/jcac.yml
+          SSH_PASSWORD="{{ user.upassword }}"
+          SSH_USERNAME="{{ user.name }}"
+          GITHUB_USERNAME="samitkumarpatel@gmail.com"
+          GITHUB_PASSWORD="{{ github_password }}"
+        networks:
+        - name: jenkins
+    

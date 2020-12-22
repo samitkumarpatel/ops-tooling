@@ -1,0 +1,105 @@
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+        - usernamePassword:
+            id: "bitbucket"
+            password: ${BB_ACCESS_TOKEN:-fake}
+            scope: GLOBAL
+            username: ${BITBUCKET_USERNAME:-fake}
+        - usernamePassword:
+            id: "slave"
+            password: ${SSH_PASSWORD:-fake}
+            username: ${SSH_USERNAME:-fake}
+jenkins:
+  systemMessage: "Hello, Welcome to Jenkins Automation!"
+  agentProtocols:
+    - "JNLP4-connect"
+    - "Ping"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+  disableRememberMe: false
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 3
+  nodes:
+    - permanent:
+        labelString: "maven"
+        name: "maven"
+        nodeDescription: "maven"
+        numExecutors: 3
+        remoteFS: "/home/jenkins"
+        retentionStrategy: "always"
+        launcher:
+          jnlp:
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/home/jenkins"
+    - permanent:
+        labelString: "terraform"
+        name: "terraform"
+        nodeDescription: "terraform"
+        numExecutors: 3
+        remoteFS: "/home/jenkins"
+        retentionStrategy: "always"
+        launcher:
+          jnlp:
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/home/jenkins"
+    - permanent:
+        labelString: "docker"
+        name: "docker"
+        nodeDescription: "docker"
+        numExecutors: 3
+        remoteFS: "/home/jenkins"
+        retentionStrategy: "always"
+        launcher:
+          jnlp:
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/home/jenkins"
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+        - id: "admin"
+          password: "admin123"
+        - id: "user"
+          password: "user123"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+      - "Agent/Build:user"
+      - "Job/Build:user"
+      - "Job/Cancel:user"
+      - "Job/Read:user"
+      - "Overall/Read:user"
+      - "View/Read:user"
+      - "Overall/Read:anonymous"
+      - "Overall/Administer:admin"
+      - "Overall/Administer:root"
+
+unclassified:
+  globalLibraries:
+    libraries:
+    - defaultVersion: "master"
+      implicit: false
+      name: "jenkins-shared-libs"
+      retriever:
+        modernSCM:
+          scm:
+            git:
+              #credentialsId: "bitbucket"
+              remote: "/var/git/samitkumar-patel/jenkins-shared-library/.git"
+              traits:
+              - "gitBranchDiscovery"

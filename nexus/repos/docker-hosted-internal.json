@@ -1,0 +1,6 @@
+{
+  "name": "docker-hosted-internal",
+  "type": "groovy",
+  "content": "repository.createDockerHosted('docker-hosted-internal', 9090, null, 'default')"
+}
+

@@ -1,0 +1,13 @@
+- job-template:
+    name: '{repo}'
+    description: 'Multibranch build for {repo-owner}/{repo}'
+    project-type: multibranch
+    prune-dead-branches: True
+    number-to-keep: '10'
+    days-to-keep: '10'
+    script-path: '{jenkinsfile}'
+    scm:
+      - github:
+          repo: '{repo}'
+          repo-owner: '{repo-owner}'
+          credentials-id: 'github'

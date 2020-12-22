@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  jenkins-code-as-config:
+    image: nginx:latest
+    volumes:
+    - type: bind
+      source: ./jcac.yml
+      target: /usr/share/nginx/html/jcac.yml
+    networks:
+      - jenkinsnet
+  jenkins:
+    build: .
+    ports:
+    - "8080:8080"
+    - "50000:50000"
+    environment:
+    - JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+    - CASC_JENKINS_CONFIG=http://jenkins-code-as-config/jcac.yml
+    - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN:-fake}
+    - GITHUB_USERNAME=${GITHUB_USERNAME:-fake}
+    volumes:
+    - type: volume
+      source: jenkins-home
+      target: /var/jenkins_home
+    networks:
+      - jenkinsnet
+volumes:
+  jenkins-home:
+networks:
+  jenkinsnet:

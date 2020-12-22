@@ -1,0 +1,15 @@
+jenkins:
+  nodes:
+  - permanent:
+      labelString: "01"
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: false
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      name: "01"
+      nodeDescription: "01"
+      numExecutors: 3
+      remoteFS: "/tmp/01"
+      retentionStrategy: "always" 

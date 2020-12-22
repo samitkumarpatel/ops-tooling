@@ -1,0 +1,14 @@
+- project:
+    name: 'Multibranch build pipeline'
+    jenkinsfile: 'Jenkinsfile'
+    repo-owner: 'samitkumarpatel'
+    repo: &job-list
+    - jenkins-declarative-pipeline
+    jobs:
+    - '{repo}'
+
+- view:
+    name: Github
+    view-list: list
+    description: Github build jobs
+    job-name: *job-list

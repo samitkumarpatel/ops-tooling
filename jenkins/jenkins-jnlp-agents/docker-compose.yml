@@ -1,0 +1,97 @@
+version: '3.7'
+services:
+  jcac:
+    image: nginx:latest
+    volumes:
+    - type: bind
+      source: ./jcac.yml
+      target: /usr/share/nginx/html/jcac.yml
+    networks:
+      - jenkinsnet
+  dind:
+    image: docker:dind
+    privileged: true
+    networks:
+      jenkinsnet:
+        aliases:
+        - docker
+    expose:
+    - "2376"
+    environment:
+    - DOCKER_TLS_CERTDIR=/certs
+    volumes: 
+    - type: volume
+      source: jenkins-docker-certs
+      target: /certs/client
+  jenkins:
+    build: .
+    ports:
+    - "8080:8080"
+    environment:
+    - JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+    - CASC_JENKINS_CONFIG=http://jcac/jcac.yml
+    - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN:-fake}
+    - GITHUB_USERNAME=${GITHUB_USERNAME:-fake}
+    - BB_ACCESS_TOKEN=${BB_ACCESS_TOKEN:-fake}
+    - BITBUCKET_USERNAME=${BITBUCKET_USERNAME:-fake}
+    volumes:
+    - type: volume
+      source: jenkins-home
+      target: /var/jenkins_home
+    - type: bind
+      source: /Users/samitkumarpatel/git
+      target: /var/git
+    depends_on:
+      - jcac
+    networks:
+      - jenkinsnet
+  maven:
+    image: jenkins/jnlp-agent-maven:jdk11
+    init: true
+    environment:
+    - JENKINS_URL=http://jenkins:8080
+    - JENKINS_SECRET=${MAVEN_TOKEN:-fake}
+    - JENKINS_AGENT_NAME=maven
+    networks:
+    - jenkinsnet
+    depends_on:
+    - jcac
+    - jenkins
+  docker:
+    image: jenkins/jnlp-agent-docker:latest
+    init: true
+    environment:
+    - JENKINS_URL=http://jenkins:8080
+    - JENKINS_SECRET=${DOCKER_TOKEN:-fake}
+    - JENKINS_AGENT_NAME=docker
+    - DOCKER_HOST=tcp://docker:2376
+    - DOCKER_CERT_PATH=/certs/client
+    - DOCKER_TLS_VERIFY=1
+    networks:
+    - jenkinsnet
+    volumes:
+    - type: volume
+      source: jenkins-docker-certs
+      target: /certs/client
+      read_only: true
+    depends_on:
+    - dind
+    - jcac
+    - jenkins
+  terraform:
+    image: jenkins/jnlp-agent-terraform:latest
+    init: true
+    environment:
+    - JENKINS_URL=http://jenkins:8080
+    - JENKINS_SECRET=${TERRAFORM_TOKEN:-fake}
+    - JENKINS_AGENT_NAME=terraform
+    networks:
+    - jenkinsnet
+    depends_on:
+    - jcac
+    - jenkins
+volumes:
+  jenkins-home:
+  jenkins-docker-certs:
+networks:
+  jenkinsnet:

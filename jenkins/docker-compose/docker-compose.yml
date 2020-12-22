@@ -1,0 +1,33 @@
+version: '3.7'
+services:
+  jenkins-code-as-config:
+    image: nginx:latest
+    volumes:
+    - type: bind
+      source: ./jcac.yml
+      target: /usr/share/nginx/html/jcac.yml
+    networks:
+      - jenkinsnet
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+    - "8080:8080"
+    command: ["./usr/local/bin/install-plugins.sh","configuration-as-code","swarm"]
+    environment:
+    - JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+    - CASC_JENKINS_CONFIG=http://jenkins-code-as-config/jcac.yml
+    - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN:-fake}
+    - GITHUB_USERNAME=${GITHUB_USERNAME:-fake}
+    volumes:
+    - type: volume
+      source: jenkins-home
+      target: /var/jenkins_home
+    - type: bind
+      source: ./jenkins-plugins.txt
+      target: /var/lib/plugins.txt
+    networks:
+      - jenkinsnet
+volumes:
+  jenkins-home:
+networks:
+  jenkinsnet:

@@ -1,0 +1,90 @@
+---
+  - job:
+      name: Test_Job_01
+      display-name: 'job01'
+      description: 'Do not edit this job through the web!'
+      project-type: pipeline
+      dsl: |
+        node(){
+          stage('hello') {
+            sh 'echo "Hellow World!"'
+          }
+          stage('docker') {
+            sh 'docker images'
+          }
+        }
+  - job:
+      name: 'X_Deploy'
+      description: 'X microservice deploy template'
+      concurrent: true
+      properties:
+        - build-discarder:
+            days-to-keep: 7
+        - rebuild:
+            rebuild-disabled: false
+      parameters:
+        - choice:
+            name: repository
+            choices:
+              - MS/ms01
+              - MS/ms02
+            description: 'The git project and repo to deploy'
+        - string:
+            name: deploy_tag
+            description: "tag to deploy, default to latest"
+        - string:
+            name: inventory_branch
+            description: 'inventory branch'
+        - choice:
+            name: deploy_env
+            choices:
+              - dev
+              - test
+              - preprod
+              - prod
+            description: "Environment"
+        # - cascade-choice:
+        #     name: folder
+        #     project: 'X_Deploy'
+        #     script: |
+        #         if (domain.equals('domainX')) {
+        #           return ['blue', 'green']
+        #         } else if (domain.equals('domainY')) {
+        #           return ['yellow', 'orange']
+        #         } else {
+        #           return ['ERROR']
+        #         }
+        #     description: 'The folder colour in CDN'
+        #     visible-item-count: 1
+        #     fallback-script: |
+        #         return ["ERROR"]
+        #     reference: domain
+        #     choice-type: single
+        - bool:
+            name: debug
+            default: false
+            description: 'Retain the job for debug'
+      project-type: pipeline
+      dsl: |
+          import net.samittutorial.Jobs
+          node() {
+             stage('info') {
+               def jobs = new Jobs(this)
+               def jobName = params.repository?.replace('/','_')+"X_Deploy"+params.deploy_env
+               
+               jobs.createJob(jobName)
+               def st = jobs.triggerJob(jobName,params)
+               jobs.jobStatus(st)
+             }
+          }
+      # pipeline-scm:
+      #   script-path: Jenkinsfile_Deploy
+      #   scm:
+      #     - git:
+      #         branches:
+      #           - master
+      #         url: 'https://repository.url.net/x.git'
+      #         credentials-id: 'jenkinsautomation'
+      #         skip-tag: true
+      #         wipe-workspace: false
+      #   lightweight-checkout: true

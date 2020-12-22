@@ -1,0 +1,63 @@
+---
+  - job:
+      name: job-name01
+  - job:
+      name: job-name02
+      display-name: 'Fancy job name'
+      description: 'Do not edit this job through the web!'
+      project-type: freestyle
+      defaults: global
+      disabled: false
+      concurrent: true
+      workspace: /srv/build-area/job-name
+      quiet-period: 5
+      block-downstream: false
+      block-upstream: false
+      retry-count: 3
+      node: NodeLabel1 || NodeLabel2
+      logrotate:
+        daysToKeep: 3
+        numToKeep: 20
+        artifactDaysToKeep: -1
+        artifactNumToKeep: -1
+  - job:
+      name: pipeline01
+      display-name: 'pipeline01'
+      description: 'Do not edit this job through the web!'
+      project-type: pipeline
+      dsl: |
+        node(){
+          stage('hello') {
+            sh 'echo "Hellow World!"'
+          }
+        }
+  - job:
+      name: pipeline02
+      display-name: 'pipeline02'
+      description: 'Do not edit this job through the web!'
+      project-type: pipeline
+      dsl: |
+        node {
+            /* Requires the Docker Pipeline plugin to be installed */
+            docker.image('maven:3-alpine').inside('-v $HOME/.m2:/root/.m2') {
+                stage('Build') {
+                    sh 'mvn -v'
+                }
+            }
+        }
+  - job:
+      name: pipeline-scm01
+      display-name: 'pipeline-scm01'
+      description: 'Do not edit this job through the web!'
+      project-type: pipeline
+      pipeline-scm:
+        scm:
+          - git:
+              branches:
+                - master
+              url: https://repo.url@repo.com/abcd.git
+              credentials-id: 'bb_token'
+              skip-tag: true
+              wipe-workspace: false
+        script-path: Jenkinsfile
+        lightweight-checkout: true

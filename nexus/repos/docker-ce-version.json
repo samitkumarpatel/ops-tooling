@@ -1,0 +1,5 @@
+{
+  "name": "docker-ce-version",
+  "type": "groovy",
+  "content": "repository.createRawProxy('docker-ce-version', 'https://download.docker.com/linux/centos/7/x86_64/stable/Packages')"
+}

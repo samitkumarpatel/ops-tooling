@@ -1,0 +1,5 @@
+{
+  "name": "maven-group-public",
+  "type": "groovy",
+  "content": "repository.createMavenGroup('maven-group-public', ['maven-hosted-releases', 'maven-hosted-releaseversions', 'maven-hosted-snapshots', 'maven-hosted-3rdparty', 'maven-proxy-play2war', 'maven-proxy-neo4j', 'maven-proxy-usisnapshots', 'maven-proxy-typesafe', 'maven-proxy-eviware', 'maven-proxy-oracle', 'maven-proxy-central', 'maven-proxy-eclipselink', 'maven-proxy-templemore', 'maven-proxy-usi', 'maven-proxy-el4j', 'maven-proxy-jboss3rdparty', 'maven-proxy-jbossrelease', 'maven-proxy-datastax', 'maven-proxy-spring'])"
+}

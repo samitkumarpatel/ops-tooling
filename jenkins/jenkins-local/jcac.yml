@@ -1,0 +1,76 @@
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+        - usernamePassword:
+            id: "github"
+            password: ${GITHUB_PASSWORD:-fake}
+            scope: GLOBAL
+            username: ${GITHUB_USERNAME:-fake}
+        - usernamePassword:
+            id: "slave"
+            password: ${SSH_PASSWORD:-fake}
+            username: ${SSH_USERNAME:-fake}
+
+jenkins:
+  systemMessage: "Hello, Welcome to Jenkins Automation!"
+  agentProtocols:
+    - "JNLP4-connect"
+    - "Ping"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+  disableRememberMe: false
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 1
+  nodes:
+    - permanent:
+        labelString: "slave01"
+        launcher:
+          ssh:
+            credentialsId: "slave"
+            host: "worker"
+            port: 22
+            sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
+        name: "slave01"
+        nodeDescription: "SSH Slave 01"
+        numExecutors: 3
+        remoteFS: "/home/jenkins/workspace"
+        retentionStrategy: "always"
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+        - id: "admin"
+          password: "admin123"
+        - id: "user"
+          password: "user123"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+      - "Agent/Build:user"
+      - "Job/Build:user"
+      - "Job/Cancel:user"
+      - "Job/Read:user"
+      - "Overall/Read:user"
+      - "View/Read:user"
+      - "Overall/Read:anonymous"
+      - "Overall/Administer:admin"
+      - "Overall/Administer:root"
+
+unclassified:
+  globalLibraries:
+    libraries:
+    - defaultVersion: "master"
+      implicit: true
+      name: "jenkins-shared-libs"
+      retriever:
+        modernSCM:
+          scm:
+            git:
+              remote: "https://github.com/samitkumarpatel/jenkins-shared-libs.git"
+              traits:
+              - "gitBranchDiscovery"

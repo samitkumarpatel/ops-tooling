@@ -1,0 +1,55 @@
+version: '3.7'
+services:
+  jenkins-jcac:
+    image: samitkumarpatel/jenkins-jcac:latest
+    # volumes:
+    # - type: bind
+    #   source: ./jcac/
+    #   target: /usr/share/nginx/html/alt
+    networks:
+      - jenkinsnet
+  jenkins:
+    image: samitkumarpatel/jenkins:latest
+    ports:
+    - "8080:8080"
+    environment:
+    - CASC_JENKINS_CONFIG=http://jenkins-jcac/default/jenkins.yml
+    - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN:-fake}
+    - GITHUB_USERNAME=${GITHUB_USERNAME:-fake}
+    volumes:
+    - type: volume
+      source: jenkins-home
+      target: /var/jenkins_home
+    networks:
+      - jenkinsnet
+    depends_on:
+      - jenkins-jcac
+  ubuntu:
+    image: samitkumarpatel/jenkins-swarm-slave:latest
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_USERNAME=samit
+      - JENKINS_PASSWORD=samit123
+      - SLAVE_NAME=ubuntu
+    networks:
+      - jenkinsnet
+    depends_on:
+      - jenkins
+  docker:
+    image: samitkumarpatel/dind-swarm-slave
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_USERNAME=samit
+      - JENKINS_PASSWORD=samit123
+      - SLAVE_NAME=docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jenkinsnet
+    depends_on:
+      - jenkins
+
+volumes:
+  jenkins-home:
+networks:
+  jenkinsnet:

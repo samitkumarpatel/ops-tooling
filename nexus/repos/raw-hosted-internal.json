@@ -1,0 +1,5 @@
+{
+  "name": "raw-hosted-internal",
+  "type": "groovy",
+  "content": "repository.createRawHosted('raw-hosted-internal')"
+}

@@ -1,0 +1,18 @@
+---
+version: '3.7'
+services:
+  nexus:
+    image: sonatype/nexus3:3.26.1
+    restart: always
+    ports:
+    - "8081:8081"
+    environment:
+      INSTALL4J_ADD_VM_PARAMS: "-Xms1g -Xmx1g -XX:MaxDirectMemorySize=2g -Djava.util.prefs.userRoot=/some-other-dir"
+      NEXUS_CONTEXT: nexus
+    volumes:
+    - type: volume
+      source: nexus-data
+      target: /nexus-data
+
+volumes:
+  nexus-data:

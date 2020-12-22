@@ -1,0 +1,14 @@
+jenkins:
+  views:
+  - all:
+      name: "all"
+  - list:
+      name: "list01"
+      columns:
+      - "status"
+      - "weather"
+      - "jobName"
+      includeRegex: "pipeline*"
+  primaryView:
+    all:
+      name: "all"

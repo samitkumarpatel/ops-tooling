@@ -1,0 +1,8 @@
+jenkins_home
+**/jenkins_home/**
+.vscode
+*.pyc
+**/.pyc/**
+jenkins/jcac/credentials.yml
+jenkins/jcac/credentials01.yml
+.venv

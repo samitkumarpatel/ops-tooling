@@ -1,0 +1,5 @@
+{
+  "name": "maven-hosted-releases",
+  "type": "groovy",
+  "content": "repository.createMavenHosted('maven-hosted-releases')"
+}

@@ -1,0 +1,58 @@
+---
+version: '3.7'
+services:
+  db:
+    image: postgres:9.6.18
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_USER: example
+      POSTGRES_DB: sonarqube
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+    - type: volume
+      source: postgres-data
+      target: /var/lib/postgresql/data
+    networks:
+    - sonarqube
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+    - 8080:8080
+    networks:
+    - sonarqube
+    
+  sonarqube:
+    image: sonarqube:8.4.1-community
+    environment:
+      sonar.jdbc.username: example
+      sonar.jdbc.password: example
+      sonar.jdbc.url: jdbc:postgresql://db/sonarqube
+    ports:
+    - 9000:9000
+    volumes:
+    - type: volume
+      source: sonarqube_conf
+      target: /opt/sonarqube/conf
+    - type: volume
+      source: sonarqube_extensions
+      target: /opt/sonarqube/extensions
+    - type: volume
+      source: sonarqube_logs
+      target: /opt/sonarqube/logs
+    - type: volume
+      source: sonarqube_data
+      target: /opt/sonarqube/data
+    networks:
+    - sonarqube
+
+volumes:
+  postgres-data:
+  sonarqube_conf:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonarqube_data:
+networks:
+  sonarqube:
