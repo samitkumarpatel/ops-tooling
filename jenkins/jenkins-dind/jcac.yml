@@ -13,6 +13,11 @@ credentials:
             username: ${SSH_USERNAME:-fake}
 
 jenkins:
+  globalNodeProperties:
+  - envVars:
+      env:
+      - key: "BRANCH"
+        value: "hello"
   systemMessage: "Welcome to (one click) Jenkins Automation!"
   agentProtocols:
     - "JNLP4-connect"
@@ -60,3 +65,16 @@ jenkins:
       - "Overall/Read:anonymous"
       - "Overall/Administer:admin"
       - "Overall/Administer:root"
+unclassified:
+ globalLibraries:
+    libraries:
+    - defaultVersion: "master"
+      implicit: true
+      name: "jenkins-shared-library"
+      retriever:
+        modernSCM:
+          scm:
+            git:
+              remote: "https://github.com/samitkumarpatel/jenkins-shared-libs.git"
+              traits:
+              - "gitBranchDiscovery"
