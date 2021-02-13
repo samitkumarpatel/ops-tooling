@@ -69,7 +69,7 @@ unclassified:
  globalLibraries:
     libraries:
     - defaultVersion: "master"
-      implicit: true
+      implicit: false
       name: "jenkins-shared-library"
       retriever:
         modernSCM:
