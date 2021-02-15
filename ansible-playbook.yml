@@ -1,6 +1,0 @@
----
-- hosts: localhost
-  vars:
-  tasks:
-    - name: Check IF Jenkins is up and Running
-      
