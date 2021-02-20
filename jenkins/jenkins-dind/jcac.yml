@@ -29,7 +29,7 @@ jenkins:
   markupFormatter: "plainText"
   mode: NORMAL
   myViewsTabBar: "standard"
-  numExecutors: 1
+  numExecutors: 4
   # nodes:
   #   - permanent:
   #       labelString: "slave01"
