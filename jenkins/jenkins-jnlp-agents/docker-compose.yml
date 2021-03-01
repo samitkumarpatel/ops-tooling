@@ -39,7 +39,7 @@ services:
       source: jenkins-home
       target: /var/jenkins_home
     - type: bind
-      source: /Users/samitkumarpatel/git
+      source: /Users/samitkumarpatel/workspace/github
       target: /var/git
     depends_on:
       - jcac
