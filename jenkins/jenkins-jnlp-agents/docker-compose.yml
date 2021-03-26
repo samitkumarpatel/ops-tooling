@@ -90,6 +90,19 @@ services:
     depends_on:
     - jcac
     - jenkins
+  python:
+    image: jenkins/jnlp-agent-python
+    init: true
+    environment:
+    - JENKINS_URL=http://jenkins:8080
+    - JENKINS_SECRET=${PYTHON_TOKEN:-fake}
+    - JENKINS_AGENT_NAME=python
+    networks:
+    - jenkinsnet
+    depends_on:
+    - jcac
+    - jenkins
+
 volumes:
   jenkins-home:
   jenkins-docker-certs:

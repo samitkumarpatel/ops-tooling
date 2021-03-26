@@ -6,4 +6,6 @@ export TERRAFORM_TOKEN=$(curl -L -s -u admin:admin123 -H "Jenkins-Crumb:dac7ce56
 echo "Got TERRAFORM_TOKEN: $TERRAFORM_TOKEN Successfully"
 export DOCKER_TOKEN=$(curl -L -s -u admin:admin123 -H "Jenkins-Crumb:dac7ce5614f8cb32a6ce75153aaf2398" -X GET http://localhost:8080/computer/docker/slave-agent.jnlp | sed "s/.*<application-desc main-class=\"hudson.remoting.jnlp.Main\"><argument>\([a-z0-9]*\).*/\1/")
 echo "Got DOCKER_TOKEN: $DOCKER_TOKEN Successfully"
-docker-compose up -d maven docker terraform
+export PYTHON_TOKEN=$(curl -L -s -u admin:admin123 -H "Jenkins-Crumb:dac7ce5614f8cb32a6ce75153aaf2398" -X GET http://localhost:8080/computer/python/slave-agent.jnlp | sed "s/.*<application-desc main-class=\"hudson.remoting.jnlp.Main\"><argument>\([a-z0-9]*\).*/\1/")
+echo "Got PYTHON_TOKEN: $PYTHON_TOKEN Successfully"
+docker-compose up -d maven docker terraform python

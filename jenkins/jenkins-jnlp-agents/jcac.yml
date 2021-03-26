@@ -67,6 +67,20 @@ jenkins:
               failIfWorkDirIsMissing: false
               internalDir: "remoting"
               workDirPath: "/home/jenkins"
+    - permanent:
+        labelString: "python"
+        name: "python"
+        nodeDescription: "python"
+        numExecutors: 3
+        remoteFS: "/home/jenkins"
+        retentionStrategy: "always"
+        launcher:
+          jnlp:
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/home/jenkins"
   securityRealm:
     local:
       allowsSignup: false
